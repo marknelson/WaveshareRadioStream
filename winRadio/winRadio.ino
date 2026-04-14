@@ -352,7 +352,8 @@ if (millis() - lastSlide > 30) {   // svakih 1 sekundu
         deb=1;
         chosen++;
         if(chosen==ns) chosen=0;
-        audio.connecttohost(stations[chosen].c_str());
+        songPlaying = "<no metadata>";
+        audio.connecttohost(station_list[chosen].url);
         canDraw=1;
       }
   }else deb=0;
