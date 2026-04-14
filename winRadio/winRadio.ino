@@ -223,7 +223,7 @@ gray=grays[16];
         for(int i=0;i<ns;i++)
         {
         if(i==chosen) sprite.setTextColor(TFT_GREEN,TFT_BLACK); else  sprite.setTextColor(TFT_DARKGREEN,TFT_BLACK);
-        sprite.drawString(stations[i].substring(0,20),10,26+(i*19),2);
+        sprite.drawString(station_list[i].name.substring(0,20),10,23+(i*19),2);
         }
 
         sprite.setTextColor(grays[0],gray);
