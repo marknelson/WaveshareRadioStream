@@ -67,12 +67,15 @@ struct Station {
   const String name;
   const char *url;
 } station_list[] = {
-  { "Disco Diamond", "https://discodiamond.radioca.st/autodj"},
-  { "Radio King", "https://listen.radioking.com/radio/175279/stream/216784"},
-  { "Radio Caroline", "http://sc6.radiocaroline.net:8040/stream"},
-  { "Rautemusik CLUB", "https://club-high.rautemusik.fm/"},
-  { "WGMC", "http://greece-media.monroe.edu/wgmc.mp3"},
-  { "Radio Banovina", "https://audio.radio-banovina.hr:9998/"}
+  { "Radio Caroline", "http://sc8.radiocaroline.net:8010/" },
+  { "BBC World Service", "http://vprbbc.streamguys.net:8000/vprbbc24.mp3"},
+  { "RauteMusic CLUB", "https://rautemusik-de-hz-fal-stream11.radiohost.de/main_aacp" },
+  { "BBC Radio 1", "https://as-hls-ww-live.akamaized.net/pool_01505109/live/ww/bbc_radio_one/bbc_radio_one.isml/bbc_radio_one-audio=48000.norewind.m3u8"},
+  { "Heart 70s", "https://icecast.thisisdax.com/Heart70s"},
+  { "KJZZ Phoenix", "https://kjzz.streamguys1.com/kjzz_mp3_48" },
+  { "Disco Diamond", "https://discodiamond.radioca.st/autodj" },
+  { "Radio King", "https://listen.radioking.com/radio/175279/stream/216784" },
+  { "Radio Banovina", "https://audio.radio-banovina.hr:9998/" },
 };
 
 const size_t ns = sizeof(station_list) / sizeof(station_list[0]);
