@@ -63,17 +63,19 @@ unsigned short light;
 
 int g[14]={0};  //graph
 
-#define ns 6 //number of stations max 9
+struct Station {
+  const String name;
+  const char *url;
+} station_list[] = {
+  { "Disco Diamond", "https://discodiamond.radioca.st/autodj"},
+  { "Radio King", "https://listen.radioking.com/radio/175279/stream/216784"},
+  { "Radio Caroline", "http://sc6.radiocaroline.net:8040/stream"},
+  { "Rautemusik CLUB", "https://club-high.rautemusik.fm/"},
+  { "WGMC", "http://greece-media.monroe.edu/wgmc.mp3"},
+  { "Radio Banovina", "https://audio.radio-banovina.hr:9998/"}
+};
 
-String stations[ns]={
-                "https://discodiamond.radioca.st/autodj",
-                "https://listen.radioking.com/radio/175279/stream/216784",
-                "http://sc6.radiocaroline.net:8040/stream",
-                "https://club-high.rautemusik.fm/;",
-                "http://greece-media.monroe.edu/wgmc.mp3",
-                 "https://audio.radio-banovina.hr:9998/;"
-                 };
-
+const size_t ns = sizeof(station_list) / sizeof(station_list[0]);
 
 #define GFX_BL 46
 Arduino_DataBus* bus = new Arduino_ESP32SPI(45 /* DC */, 21 /* CS */, 38 /* SCK */, 39 /* MOSI */, -1 /* MISO */);
@@ -153,7 +155,7 @@ void setup() {
 
   audio.setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT, I2S_MCLK);
   audio.setVolume(volume*4); // 0...21
-  audio.connecttohost(stations[0].c_str());
+  audio.connecttohost(station_list[0].url);
 }
 
 void draw2()
