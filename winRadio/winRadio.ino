@@ -10,6 +10,15 @@
 #include "Wire.h"
 #include "NotoSansBold15.h"
 
+// Libraries used by this project
+// Note that these are all behind current releases. In particular, the
+// audio library made big changes in callbacks that will require
+// some changes before catching up
+//
+// ESP32-audioI2S 3.4.0 https://github.com/schreibfaul1/ESP32-audioI2S
+// Arduino_GFX 1.6.0 https://github.com/moononournation/Arduino_GFX
+// LovyanGFX 1.2.19 https://github.com/lovyan03/LovyanGFX
+
 #define PA_CTRL 7
 #define I2S_MCLK 8
 #define I2S_BCLK 9
@@ -69,13 +78,13 @@ struct Station {
 } station_list[] = {
   { "Radio Caroline", "http://sc8.radiocaroline.net:8010/" },
   { "BBC World Service", "http://vprbbc.streamguys.net:8000/vprbbc24.mp3"},
-  { "RauteMusic CLUB", "https://rautemusik-de-hz-fal-stream11.radiohost.de/main_aacp" },
   { "BBC Radio 1", "https://as-hls-ww-live.akamaized.net/pool_01505109/live/ww/bbc_radio_one/bbc_radio_one.isml/bbc_radio_one-audio=48000.norewind.m3u8"},
+  { "BBC Radio 2", "http://as-hls-ww-live.akamaized.net/pool_74208725/live/ww/bbc_radio_two/bbc_radio_two.isml/bbc_radio_two-audio%3d48000.norewind.m3u8"},
+  { "BBC Radio 3", "http://as-hls-ww-live.akamaized.net/pool_23461179/live/ww/bbc_radio_three/bbc_radio_three.isml/bbc_radio_three-audio%3d96000.norewind.m3u8"},
+  { "BBC Radio 4", "http://as-hls-ww-live.akamaized.net/pool_55057080/live/ww/bbc_radio_fourfm/bbc_radio_fourfm.isml/bbc_radio_fourfm-audio%3d96000.norewind.m3u8"},
+  { "BBC Radio 5", "http://as-hls-ww-live.akamaized.net/pool_89021708/live/ww/bbc_radio_five_live/bbc_radio_five_live.isml/bbc_radio_five_live-audio%3d96000.norewind.m3u8"},
   { "Heart 70s", "https://icecast.thisisdax.com/Heart70s"},
-  { "KJZZ Phoenix", "https://kjzz.streamguys1.com/kjzz_mp3_48" },
-  { "Disco Diamond", "https://discodiamond.radioca.st/autodj" },
-  { "Radio King", "https://listen.radioking.com/radio/175279/stream/216784" },
-  { "Radio Banovina", "https://audio.radio-banovina.hr:9998/" },
+  { "Heart 80s", "https://icecast.thisisdax.com/Heart80s"},
 };
 
 const size_t ns = sizeof(station_list) / sizeof(station_list[0]);
@@ -129,10 +138,12 @@ void setup() {
 
   analogWrite(GFX_BL,110);   //SCREEN BRIGHTNESS 0-255
 
-  gfx->setCursor(2, 20);
-  gfx->setTextSize(2);
-  gfx->setTextColor(RGB565_GREEN);
-  gfx->println("connecting to WI-FI");
+  gfx->setCursor(0, 16);
+  gfx->setTextSize(1);
+  gfx->setTextColor(RGB565_GREEN, BLACK);
+  gfx->println("Connecting to WI-FI");
+  gfx->setCursor(0, 32);
+  gfx->println("SSID: " + ssid);
 
   sprite.setColorDepth(16);     // RGB565
   sprite.createSprite(240, 240); 
@@ -148,6 +159,7 @@ void setup() {
 
   sprite2.setTextColor(grays[0],TFT_BLACK);
 
+#if 0
   WiFi.mode(WIFI_STA);
   wifiMulti.addAP(ssid.c_str(), password.c_str());
   wifiMulti.run();
@@ -155,7 +167,43 @@ void setup() {
     WiFi.disconnect(true);
     wifiMulti.run(); 
   }
+#else
+WiFi.mode(WIFI_STA);
+wifiMulti.addAP(ssid.c_str(), password.c_str());
 
+Serial.println("Connecting to WiFi...");
+
+int attempts = 0;
+
+while (wifiMulti.run() != WL_CONNECTED) {
+  Serial.print(".");
+  delay(250);
+  attempts++;
+  char msg[100];
+  sprintf(msg, "Attempt %d ", attempts);
+  gfx->setCursor(0, 48);
+  gfx->println(msg);
+  if (digitalRead(0) == LOW) {
+    gfx->setCursor(0, 60);
+    gfx->println("Going to sleep");
+    delay(2000);
+    esp_sleep_enable_ext0_wakeup(GPIO_NUM_0, 0); // probudi se kad gumb opet bude LOW
+    digitalWrite(PA_CTRL, LOW);
+    delay(200);
+    esp_deep_sleep_start();
+  }
+
+  if (attempts > 10) {  // ~20 seconds
+    Serial.println("\nRetrying...");
+    WiFi.disconnect(true);
+    delay(300);
+    attempts = 0;
+  }
+}
+Serial.println("\nWiFi connected!");
+Serial.println(WiFi.localIP());
+
+#endif
   audio.setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT, I2S_MCLK);
   audio.setVolume(volume*4); // 0...21
   audio.connecttohost(station_list[0].url);
